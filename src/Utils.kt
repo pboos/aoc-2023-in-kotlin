@@ -6,10 +6,11 @@ import kotlin.io.path.readLines
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(day: Int, isTest: Boolean = false): List<String> {
+fun readInput(day: Int, part: Int? = null, isTest: Boolean = false): List<String> {
     val dayString = day.toString().padStart(2, '0')
+    val partAppendix = if (part != null) "_part$part" else ""
     val testAppendix = if (isTest) "_test" else ""
-    return Path("src/day$dayString/Day$dayString$testAppendix.txt").readLines()
+    return Path("src/day$dayString/Day$dayString$partAppendix$testAppendix.txt").readLines()
 }
 
 /**
