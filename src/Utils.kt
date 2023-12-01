@@ -6,7 +6,11 @@ import kotlin.io.path.readLines
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = Path("src/$name.txt").readLines()
+fun readInput(day: Int, isTest: Boolean = false): List<String> {
+    val dayString = day.toString().padStart(2, '0')
+    val testAppendix = if (isTest) "_test" else ""
+    return Path("src/day$dayString/Day$dayString$testAppendix.txt").readLines()
+}
 
 /**
  * Converts string to md5 hash.
