@@ -40,7 +40,7 @@ fun main() {
             val numbersWeHaveThatAreWinningNumbers = numbers.intersect(winningNumbers.toSet()).size
 
             val howManyCards = numberOfEachCard[index]
-            for (i in index + 1 .. (index + numbersWeHaveThatAreWinningNumbers).coerceAtMost(input.size - 1)) {
+            for (i in index + 1..(index + numbersWeHaveThatAreWinningNumbers).coerceAtMost(input.size - 1)) {
                 numberOfEachCard[i] += howManyCards
             }
         }
