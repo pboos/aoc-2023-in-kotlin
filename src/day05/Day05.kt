@@ -21,18 +21,10 @@ fun main() {
 
         return seedRanges
             .map { seedRange ->
-                val folded = parsedInput.mappers
+                parsedInput.mappers
                     .fold(listOf(seedRange)) { acc, mapper ->
-                        val output = acc.map { range ->
-                            val result = mapper.mapRange(range)
-                            println("${mapper.sourceName}-${mapper.destinationName} : $range -> $result")
-                            result
-                        }.flatten()
-                        output.println()
-                        output
+                        acc.map { range -> mapper.mapRange(range) }.flatten()
                     }
-                folded.println()
-                folded
                     .minOf { range -> range.first() }
             }
             .min()
@@ -115,8 +107,8 @@ data class Mapper(
 
     fun mapRange(range: LongRange): List<LongRange> {
         val applyingRanges = ranges
-            .filter { it.sourceRange.contains(range.first) || it.sourceRange.contains(range.last) }
             .sortedBy { it.sourceRange.first }
+            .filter { it.sourceRange.contains(range.first) || it.sourceRange.contains(range.last) || (it.sourceRange.first >= range.first && it.sourceRange.last <= range.last) }
 
         if (applyingRanges.isEmpty()) {
             return listOf(range)
@@ -132,36 +124,15 @@ data class Mapper(
             resultRanges.add(range.first until applyingRanges.first().sourceRange.first)
         }
 
-        // first range
-        addRangeWithOffset(
-            applyingRanges.first().sourceRange.first.coerceAtLeast(range.first)..
-                    applyingRanges.first().sourceRange.last.coerceAtMost(range.last),
-            applyingRanges.first().sourceToDestinationOffset
-        )
-
-        // if only one range, after range
-        if (applyingRanges.size == 1) {
-            if (applyingRanges.first().sourceRange.last < range.last) {
-                resultRanges.add(applyingRanges.first().sourceRange.last + 1L..range.last)
-            }
-            return resultRanges
+        // ranges
+        applyingRanges.forEach { applyingRange ->
+            addRangeWithOffset(
+                applyingRange.sourceRange.first.coerceAtLeast(range.first)..
+                        applyingRange.sourceRange.last.coerceAtMost(range.last),
+                applyingRange.sourceToDestinationOffset
+            )
         }
 
-        if (applyingRanges.size > 2) {
-            throw IllegalStateException("More than 2 ranges found for range: $range")
-        }
-
-        // in between
-        if (applyingRanges.first().sourceRange.last < applyingRanges.last().sourceRange.first - 1L) {
-            resultRanges.add(applyingRanges.first().sourceRange.last + 1L..applyingRanges.last().sourceRange.first - 1L)
-        }
-
-        // second range
-        addRangeWithOffset(
-            applyingRanges.last().sourceRange.first..
-                    applyingRanges.last().sourceRange.last.coerceAtMost(range.last),
-            applyingRanges.last().sourceToDestinationOffset
-        )
         // after
         if (applyingRanges.last().sourceRange.last < range.last) {
             resultRanges.add(applyingRanges.last().sourceRange.last + 1L..range.last)
